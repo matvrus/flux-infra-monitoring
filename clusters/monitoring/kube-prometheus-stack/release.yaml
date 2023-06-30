@@ -32,7 +32,7 @@ spec:
           matchLabels:
             app.kubernetes.io/component: monitoring
     grafana:
-      adminPassword: gitops-STRONG-pass!
+      adminPassword: "admin"
   postRenderers:
     - kustomize:
         patches:
