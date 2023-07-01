@@ -1,0 +1,71 @@
+# tempo.yaml
+
+apiVersion: tempo.grafana.com/v1alpha1
+kind: Tempo
+metadata:
+  name: tempo
+  namespace: flux-system
+spec:
+  service:
+    type: ClusterIP
+    ports:
+      - name: http-query
+        port: 3100
+        targetPort: http-query
+      - name: http-ingester
+        port: 3200
+        targetPort: http-ingester
+      - name: grpc-query
+        port: 4317
+        targetPort: grpc-query
+      - name: grpc-ingester
+        port: 4337
+        targetPort: grpc-ingester
+  config:
+    distributor:
+      writeSyncConcurrency: 10
+      readConcurrency: 5
+      maxConcurrentWrites: 5
+      receiveBatchMaxSizeBytes: 5242880
+      sendBatchMaxSizeBytes: 5242880
+    ingester:
+      lifecycler:
+        joinAfter: 0s
+        observeRecent: 0s
+        observeNew: 0s
+        distributeInterval: 1s
+        ring:
+          kvstore:
+            store: memberlist
+            gossipInterval: 1s
+            maxRingItems: 8192
+        flush:
+          interval: 1s
+    compactor:
+      compaction:
+        compactionWindow: 1h
+        retention: 48h
+        blockSize: 4h
+      api:
+        listenAddress: "0.0.0.0:10902"
+    frontend:
+      service:
+        path: /api/tempo
+    query:
+      service:
+        address: tempo-query
+      frontend:
+        address: tempo-frontend
+      backend:
+        requestTimeout: 30s
+      ingester:
+        backend:
+          address: tempo-ingester
+          retry:
+            maxElapsedTime: 10m
+            initialInterval: 500ms
+            maxInterval: 10s
+            backoffFactor: 2
+    storage:
+      trace:
+        backend: memory

@@ -1,0 +1,11 @@
+# values.yaml
+
+tempo:
+  enabled: true
+
+  storage:
+    trace:
+      type: memory
+
+  frontend:
+    enabled: true
