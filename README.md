@@ -29,7 +29,7 @@ FLUX-INFRA-MONITORING є репозиторієм для тестування т
 1. Склонуйте репозиторій до вашого локального середовища:
 
    ```bash
-   git clone https://github.com/matvrus/k-monitoring.git
+   git clone https://github.com/matvrus/flux-infra-monitoring.git
    cd k-monitoring
    ```
 
@@ -89,16 +89,18 @@ K-Monitoring - це стек інструментів для моніторин�
 Перед початком переконайтеся, що ваше dev-середовище відповідає наступним вимогам:
 - Kubernetes кластер налаштовано
 - Доступ до кластера та налаштування `kubectl`
+Розгорніть кластер у зручний для вас спасіб. Наприклад, використовуючи [k3d](https://k3d.io/).
+У даному кейсі я використовував TERRAFORM для розгортання кластеру.
 
 
 Наявність `docker` та `docker-compose` для роботи зі стеком моніторингу
 
 ## Кроки розгортання
 
-1. Клонуйте репозиторій K-Monitoring:
+1. Клонуйте репозиторій flux-infra-monitoring:
 
    ```bash
-   git clone https://github.com/matvrus/k-monitoring.git
+   git clone https://github.com/matvrus/flux-infra-monitoring.git
    cd k-monitoring
    ```
 
@@ -127,8 +129,83 @@ Fluentbit - це інструмент для збору та експорту л
 2. Застосуйте конфігураційний файл до вашого Kubernetes-кластера:
 
    ```bash
-   kubectl apply -f fluentbit-configmap.yaml
-   kubectl apply -f fluentbit-ds.yaml
+# Спочатку зареєструйте Git-репозиторій на вашому кластері:
+flux create source git flux-infra-monitoring \
+  --interval=30m \
+  --url=https://github.com/matvrus/flux-infra-monitoring \
+  --branch=main
+
+# Встановлення стеку Prometheus
+flux create kustomization kube-prometheus-stack \
+  --interval=1h \
+  --prune \
+  --source=flux-infra-monitoring \
+  --path="./monitoring/kube-prometheus-stack" \
+  --health-check-timeout=5m \
+  --wait
+
+# Встановлення стеку Loki
+flux create kustomization loki-stack \
+  --depends-on=kube-prometheus-stack \
+  --interval=1h \
+  --prune \
+  --source=flux-infra-monitoring \
+  --path="./monitoring/loki-stack" \
+  --health-check-timeout=5m \
+  --wait
+
+# Встановлення панелей інструменту Grafana для Flux
+flux create kustomization monitoring-config \
+  --depends-on=kube-prometheus-stack \
+  --interval=1h \
+  --prune=true \
+  --source=flux-infra-monitoring \
+  --path="./monitoring/monitoring-config" \
+  --health-check-timeout=1m \
+  --wait
+
+# Для встановлення opentelemetry-operator у наявному кластері переконайтеся, що cert-manager встановлено та запустіть
+kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.12.2/cert-manager.yaml
+
+flux create kustomization cert-manager \
+  --interval=1h \
+  --retry-interval=1m \
+  --prune=true \
+  --source=flux-infra-monitoring \
+  --path="./monitoring/cert-manager" \
+  --health-check-timeout=1m \
+  --wait
+
+# Встановлення opentelemetry-operator
+flux create source helm open-telemetry \
+  --url=https://open-telemetry.github.io/opentelemetry-helm-charts \
+  --interval=10m \
+  --namespace=flux-system
+
+flux create kustomization open-telemetry \
+  --interval=1h \
+  --prune=true \
+  --source=flux-infra-monitoring \
+  --path="./monitoring/open-telemetry" \
+  --health-check-timeout=1m \
+  --wait
+
+# Встановлення Tempo
+flux create source helm tempo \
+  --url=https://grafana.github.io/tempo-helm-chart \
+  --interval=10m \
+  --namespace=flux-system
+
+flux create kustomization tempo \
+  --interval=1h \
+  --prune=true \
+  --source=flux-infra-monitoring \
+  --path="./monitoring/tempo" \
+  --health-check-timeout=1m \
+  --wait
+
+# Ви можете отримати доступ до Grafana за допомогою перенаправлення портів:
+kubectl -n monitoring port-forward svc/kube-prometheus-stack-grafana 3000:80
    ```
 
 3. Переконайтеся, що Fluentbit успішно розгорнуто:
