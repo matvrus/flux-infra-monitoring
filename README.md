@@ -58,6 +58,7 @@ K-Monitoring є репозиторієм для тестування та екс
   - [Доступ до моніторингових сервісів](#доступ-до-моніторингових-сервісів)
   - [Приклад використання](#приклад-використання)
   - [Допоміжні ресурси](#допоміжні-ресурси)
+  - [DEMO](#demo)
 
 ## Огляд
 
@@ -144,3 +145,30 @@ Fluentbit - це інструмент для збору та експорту л
 - [Grafana документація](https://grafana.com/docs/)
 - [Loki документація](https://grafana.com/oss/loki/)
 - [Fluentbit документація](https://fluentbit.io/documentation/)
+
+
+## DEMO
+
+
+| Example 1 | Example 2 | Example 3 | Example 4 |
+|-----------|-----------|-----------|-----------|
+| ![Example 1](data/01.png) | ![Example 2](data/02.png) | ![Example 3](data/03.png) | ![Example 4](data/04.png) |
+
+| Example 5 | Example 6 | Example 7 | Example 8 |
+|-----------|-----------|-----------|-----------|
+| ![Example 5](data/05.png) | ![Example 6](data/06.png) | ![Example 7](data/07.png) | ![Example 8](data/08.png) |
+
+| Example 9 | Example 10 | Example 11 | Example 12 |
+|-----------|------------|------------|------------|
+| ![Example 9](data/09.png) | ![Example 10](data/10.png) | ![Example 11](data/11.png) | ![Example 12](data/12.png) |
+
+| Example 13 | Example 14 | Example 15 | Example 16 |
+|------------|------------|------------|------------|
+| ![Example 13](data/13.png) | ![Example 14](data/14.png) | ![Example 15](data/15.png) | ![Example 16](data/16.png) |
+
+| Example 17 | Example 18 |
+|------------|------------|
+| ![Example 17](data/17.png) | ![Example 18](data/18.png) |
+
+
+Дивіться демонстраційне відео на YouTube, щоб побачити налаштований стек моніторингу в дії: ![[Example 19](https://youtu.be/Gi-2FskO0jk)](data/19.png)[Демо налаштованого стеку моніторингу](https://youtu.be/Gi-2FskO0jk).
