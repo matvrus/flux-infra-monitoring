@@ -1,0 +1,15 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: demo
+  namespace: monitoring
+spec:
+  chart:
+    git: https://github.com/matvrus/kbot
+    ref: main
+    path: otel
+  values:
+    - controller:
+        repository: https://github.com/matvrus/k-monitoring
+        branch: main
+        path: otel
